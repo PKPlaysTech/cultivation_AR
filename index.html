@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AR Historic Buildings • Educational Guide</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+  <!-- Google <model-viewer> WebAR Library -->
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+</head>
+<body>
+
+  <!-- Top Glassmorphism Navigation Bar -->
+  <header class="header-bar glass-panel">
+    <div class="brand-title">
+      <span style="font-size: 1.5rem;">🏛️</span>
+      <div>
+        <h1 id="building-title">Roman Colosseum</h1>
+        <div class="brand-subtitle" id="building-subtitle">Rome, Italy • Educational AR</div>
+      </div>
+    </div>
+    <div class="controls-right">
+      <!-- Building Selector -->
+      <div class="select-wrapper">
+        <select id="building-select" class="building-select">
+          <!-- Populated dynamically via JS -->
+        </select>
+      </div>
+      <!-- Teacher Mode Button -->
+      <button class="btn" id="teacher-mode-btn" style="border-color: var(--accent-gold); color: var(--accent-gold);">⚙️ Teacher Mode</button>
+    </div>
+  </header>
+
+  <!-- WebAR 3D Model Viewer Canvas -->
+  <model-viewer
+    id="ar-viewer"
+    src="assets/colosseum.glb"
+    ar
+    ar-modes="webxr scene-viewer quick-look"
+    camera-controls
+    touch-action="pan-y"
+    auto-rotate
+    shadow-intensity="1.5"
+    shadow-softness="0.8"
+    exposure="1.0"
+    alt="3D Historical Building AR Model"
+  >
+    <!-- Hotspots are populated dynamically by app.js -->
+  </model-viewer>
+
+  <!-- Bottom Floating AR Placement Trigger Button -->
+  <div class="bottom-bar">
+    <button class="btn btn-primary btn-ar" id="ar-prompt-btn">
+      <span style="font-size: 1.2rem;">📱</span>
+      <span>View in AR (Place on Floor/Table)</span>
+    </button>
+  </div>
+
+  <!-- Info & Audio Drawer -->
+  <div class="info-drawer glass-panel" id="info-drawer">
+    <div class="drawer-header">
+      <div class="drawer-title" id="drawer-title">Hotspot Title</div>
+      <button class="btn-close" id="drawer-close-btn">&times;</button>
+    </div>
+    
+    <!-- Hotspot Media Container (Photo Image / Video Slideshow) -->
+    <div class="drawer-media-container" id="drawer-media-container" style="display: none;">
+      <img id="drawer-img" class="drawer-img" alt="Hotspot Media Photo" style="display: none;">
+      <video id="drawer-video" class="drawer-video" controls style="display: none;"></video>
+      <iframe id="drawer-iframe" class="drawer-iframe" style="display: none;" allowfullscreen></iframe>
+      
+      <!-- Slideshow Navigation & Controls -->
+      <button id="slideshow-prev" class="slideshow-btn slideshow-prev" title="Previous picture">&lsaquo;</button>
+      <button id="slideshow-next" class="slideshow-btn slideshow-next" title="Next picture">&rsaquo;</button>
+      <div id="slideshow-dots" class="slideshow-dots"></div>
+      <span id="slideshow-counter" class="slideshow-counter">1 / 1</span>
+    </div>
+
+    <div class="drawer-body" id="drawer-body">
+      Select a numbered 3D marker on the building to see explanations and hear the audio guide.
+    </div>
+    <!-- Audio Control Bar -->
+    <div class="audio-bar">
+      <div class="audio-info">
+        <span class="audio-icon">🎧</span>
+        <span id="audio-status-text">Click to hear audio guide</span>
+      </div>
+      <button class="btn btn-primary" id="audio-play-btn">🔊 Listen Guide</button>
+    </div>
+  </div>
+
+  <!-- Image Lightbox Modal Overlay -->
+  <div class="modal-overlay" id="image-modal">
+    <div class="lightbox-card">
+      <button class="btn-close lightbox-close" id="image-modal-close">&times;</button>
+      <img id="lightbox-img" src="" alt="Enlarged Photo Preview">
+    </div>
+  </div>
+
+  <!-- Quiz Modal Dialog -->
+  <div class="modal-overlay" id="quiz-modal">
+    <div class="quiz-card glass-panel">
+      <div class="drawer-header">
+        <h3 id="quiz-title" style="color: var(--accent-gold);">Building Quiz</h3>
+        <button class="btn-close" id="quiz-modal-close">&times;</button>
+      </div>
+      <div id="quiz-body">
+        <!-- Populated via app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Pin Placement Indicator Banner -->
+  <div class="pin-placement-banner" id="pin-placement-banner">
+    <span>📍 <strong id="placing-pin-label">Pin 1 Placement:</strong> Click anywhere on the 3D model surface to set pin position!</span>
+    <button class="btn btn-primary" id="cancel-pin-placement-btn" style="padding: 4px 10px; font-size: 0.8rem;">Cancel</button>
+  </div>
+
+  <!-- Teacher Editor Modal -->
+  <div class="modal-overlay" id="teacher-modal">
+    <div class="teacher-card glass-panel">
+      <div class="drawer-header">
+        <h3 style="color: var(--accent-gold);">⚙️ Teacher Content & Quiz Editor</h3>
+        <button class="btn-close" id="teacher-modal-close">&times;</button>
+      </div>
+
+      <!-- Teacher Navigation Tabs -->
+      <div class="teacher-tabs">
+        <button class="teacher-tab-btn active" id="tab-btn-content">📌 Pins & Narration</button>
+        <button class="teacher-tab-btn" id="tab-btn-quiz">✏️ Quiz Creator</button>
+      </div>
+
+      <!-- Content Tab Pane -->
+      <div class="teacher-tab-pane active" id="pane-content">
+        <div class="teacher-editor-scroll">
+          <!-- Building Meta Editor -->
+          <div class="editor-section">
+            <label class="input-label">Building Title</label>
+            <input type="text" id="teacher-bld-name" class="form-input" placeholder="e.g. Roman Colosseum">
+            
+            <label class="input-label" style="margin-top: 8px;">Subtitle / Era</label>
+            <input type="text" id="teacher-bld-subtitle" class="form-input" placeholder="e.g. Rome, Italy • Built 70-80 AD">
+          </div>
+
+          <!-- 4 Hotspot Editors -->
+          <div id="hotspot-editors-container">
+            <!-- Populated by JS for 4 pins -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Quiz Tab Pane -->
+      <div class="teacher-tab-pane" id="pane-quiz">
+        <div class="teacher-editor-scroll">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span id="quiz-count-label" style="font-size: 0.85rem; color: #94a3b8;">Questions (0/10 Max):</span>
+            <button class="btn btn-primary" id="add-quiz-q-btn" style="padding: 4px 10px; font-size: 0.8rem;">➕ Add Question</button>
+          </div>
+          <div id="quiz-editors-container">
+            <!-- Populated by JS for quiz questions -->
+          </div>
+        </div>
+      </div>
+
+      <div class="teacher-actions">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn btn-primary" id="save-teacher-data-btn">💾 Save All</button>
+          <button class="btn" id="export-teacher-data-btn">📥 Export JSON</button>
+          <label class="btn" style="cursor: pointer; border-color: rgba(255,255,255,0.2);">
+            📤 Import JSON
+            <input type="file" id="import-teacher-data-input" accept=".json" style="display: none;">
+          </label>
+        </div>
+        <button class="btn" id="reset-teacher-data-btn" style="border-color: #ef4444; color: #f87171;">🔄 Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Configuration & Script -->
+  <script src="buildings.js"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>
