@@ -150,13 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('building-title').textContent = building.name[currentLanguage];
     document.getElementById('building-subtitle').textContent = building.subtitle[currentLanguage];
 
-    // Attempt to load local GLB file, fallback to public URL
+    // Load 3D GLB model
     modelViewer.src = building.modelPath;
-    
-    modelViewer.addEventListener('error', () => {
-      console.warn(`Local model not found at ${building.modelPath}. Using demo fallback model.`);
-      modelViewer.src = building.fallbackUrl;
-    }, { once: true });
 
     renderHotspots();
     closeDrawer();
