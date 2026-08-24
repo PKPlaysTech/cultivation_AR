@@ -104,19 +104,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if (Array.isArray(parsed) && parsed.length > 0) {
           parsed.forEach((bld, bIdx) => {
             const defBld = defaultBuildings[bIdx];
-            if (defBld && bld.hotspots) {
-              bld.hotspots.forEach((hs, hIdx) => {
-                const defHs = defBld.hotspots ? defBld.hotspots[hIdx] : null;
-                if (defHs) {
-                  if (!hs.mediaType) hs.mediaType = defHs.mediaType || 'image';
-                  if (defHs.images && defHs.images.length > 0) {
-                    const existing = hs.images || [];
-                    const merged = Array.from(new Set([...defHs.images, ...existing]));
-                    hs.images = merged;
-                    hs.mediaUrl = merged[0] || defHs.mediaUrl || '';
+            if (defBld) {
+              bld.modelPath = defBld.modelPath || "assets/colosseum.glb";
+              bld.fallbackUrl = defBld.fallbackUrl || "assets/colosseum.glb";
+              if (bld.hotspots) {
+                bld.hotspots.forEach((hs, hIdx) => {
+                  const defHs = defBld.hotspots ? defBld.hotspots[hIdx] : null;
+                  if (defHs) {
+                    if (!hs.mediaType) hs.mediaType = defHs.mediaType || 'image';
+                    if (defHs.images && defHs.images.length > 0) {
+                      const existing = hs.images || [];
+                      const merged = Array.from(new Set([...defHs.images, ...existing]));
+                      hs.images = merged;
+                      hs.mediaUrl = merged[0] || defHs.mediaUrl || '';
+                    }
                   }
-                }
-              });
+                });
+              }
             }
           });
           window.BUILDINGS = parsed;
