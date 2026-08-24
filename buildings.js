@@ -18,7 +18,7 @@ window.BUILDINGS = [
       zh: "意大利罗马 • 建于公元 70-80 年"
     },
     modelPath: "assets/colosseum.glb",
-    fallbackUrl: "https://modelviewer.dev/shared-assets/models/glTF-Sample-Assets/Models/MaterialsVariantsShoe/glTF-Binary/MaterialsVariantsShoe.glb",
+    fallbackUrl: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/AntiqueCamera/glTF-Binary/AntiqueCamera.glb",
     skyboxColor: "#111827",
     hotspots: [
       {
